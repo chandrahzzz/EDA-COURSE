@@ -21,9 +21,10 @@ The primary study utilizes the `catholic.csv` dataset, which records academic pe
 | File | Description | Language / Environment |
 |---|---|---|
 | `Untitled5.ipynb` | **Phase-1**: Comprehensive Exploratory Data Analysis, Data Cleaning, and Visualization | Python (Jupyter / Colab) |
+| `SLE.ipynb` | **Simple Linear Estimation (SLE)**: Parametric Modeling, OLS Derivation, Diagnostic Hypothesis Testing, and Validation | R (RStudio / Colab) |
+| `pca.ipynb` | Dimensionality Reduction: Principal Component Analysis (PCA), Statistical Suitability Diagnostics, and Biplots | R (RStudio / Colab) |
 | `1D,2D,NDipynb.ipynb` | One-Dimensional, Two-Dimensional, and Multi-Dimensional Statistical Analysis | R (RStudio / Colab) |
 | `HeirarchicalNKmeans.ipynb` | Unsupervised Learning: Hierarchical Clustering and K-Means Partitioning | R (RStudio / Colab) |
-| `pca.ipynb` | Dimensionality Reduction: Principal Component Analysis (PCA), Statistical Suitability Diagnostics, and Biplots | R (RStudio / Colab) |
 
 ---
 
@@ -64,6 +65,49 @@ The primary component of Phase-1 is implemented in `Untitled5.ipynb`. It establi
 
 ### 7. Data Export
 - Generation of the preprocessed and transformed dataset exported as `catholic_cleaned.csv`.
+
+---
+
+## Simple Linear Estimation (`SLE.ipynb`)
+
+An end-to-end econometric and statistical modeling pipeline implemented in R to quantify and evaluate the linear relationship between reading comprehension (`read12`) and mathematics performance (`math12`) from the Catholic High School dataset.
+
+### 1. Exploratory Diagnostics & Bivariate Profiling
+- **Data Filtering**: Extraction of complete paired observations for 12th-grade reading (`read12`) and mathematics (`math12`) scores across 7,430 students.
+- **Descriptive Statistics**: Evaluation of distributional moments (mean, standard deviation, median, range) across both cognitive metrics.
+- **Visual Exploration**: Dual-panel histograms, boxplot dispersions, and bivariate scatter plots inspecting linearity and data density.
+- **Correlation Testing**: Pearson product-moment correlation analysis establishing a strong, statistically significant positive linear relationship ($r \approx 0.7104$, $t = 86.998$, $p < 2.2 \times 10^{-16}$, 95% CI $[0.6990, 0.7215]$).
+
+### 2. Ordinary Least Squares (OLS) Formulation & Estimation
+- **Train/Test Splitting**: Seeded 80/20 partitioning into a training cohort ($n_{\text{train}} = 5,944$) and holdout test cohort ($n_{\text{test}} = 1,486$).
+- **Manual Parameter Derivation**: Explicit calculation of slope and intercept using closed-form analytical formulas:
+  $$\hat{\beta}_1 = \frac{\sum (x_i - \bar{x})(y_i - \bar{y})}{\sum (x_i - \bar{x})^2} \approx 0.7147, \quad \hat{\beta}_0 = \bar{y} - \hat{\beta}_1 \bar{x} \approx 15.1242$$
+- **Model Fitting (`lm`)**: Estimation via `lm(math12 ~ read12, data = train)`, yielding identical parameter values:
+  $$\widehat{\text{math12}} = 15.1242 + 0.7147 \times \text{read12}$$
+- **Statistical Significance**: Both parameters are highly significant ($t_{\hat{\beta}_0} = 31.48$, $t_{\hat{\beta}_1} = 78.21$, $p < 2 \times 10^{-16}$).
+- **Confidence Intervals**: 95% confidence intervals constructed for the intercept $[14.1824, 16.0659]$ and slope $[0.6967, 0.7326]$.
+
+### 3. Variance Decomposition & Goodness-of-Fit
+- **ANOVA Decomposition**: Partitioning total variability into explained and unexplained sums of squares ($F(1, 5942) = 6117.47, p < 2 \times 10^{-16}$):
+  - Total Sum of Squares ($SST$): $5.356 \times 10^5$
+  - Regression Sum of Squares ($SSR$): $2.717 \times 10^5$
+  - Error Sum of Squares ($SSE$): $2.639 \times 10^5$
+- **Coefficient of Determination**: In-sample $R^2 \approx 0.5073$ (Adjusted $R^2 \approx 0.5072$), indicating reading aptitude explains approximately $50.7\%$ of the variance in math performance.
+
+### 4. Classical Regression Diagnostics & Assumption Testing
+- **Four-Panel Residual Diagnostics**: Residuals vs. Fitted, Normal Q-Q, Scale-Location, and Residuals vs. Leverage plots.
+- **Normality Assessment**: Q-Q reference line comparison and Shapiro-Wilk normality test on residuals ($W = 0.9985, p = 9.78 \times 10^{-5}$).
+- **Homoscedasticity Assessment**: Studentized Breusch-Pagan test ($BP = 14.801, df = 1, p = 0.00012$) evaluating constancy of residual variance across fitted levels.
+- **Independence Assessment**: Durbin-Watson test ($DW = 1.9813, p = 0.236$), establishing absence of first-order autocorrelation in residuals.
+- **Influence & Leverage Analysis**: Cook’s Distance computation identifying observations exceeding the leverage threshold ($h = 4/n_{\text{train}}$) to monitor influential outliers.
+
+### 5. Out-of-Sample Generalization & Prediction Bands
+- **Holdout Validation**: Evaluating test set generalization against unseen data ($n_{\text{test}} = 1,486$):
+  - Root Mean Squared Error (RMSE): $\approx 6.6306$
+  - Mean Absolute Error (MAE): $\approx 5.3198$
+  - Holdout Test $R^2$: $\approx 0.4937$ ($49.4\%$ variance explained out-of-sample)
+- **Actual vs. Predicted Evaluation**: Scatter visualization comparing predicted values against ground truth along the 45-degree reference line ($y = x$).
+- **Interval Estimation**: Constructing 95% Narrow Confidence Intervals (mean response estimation) and Wide Prediction Intervals (individual observation forecast) plotted across the entire operational range of reading scores.
 
 ---
 
@@ -145,13 +189,16 @@ pip install pandas numpy matplotlib seaborn scikit-learn
 - e1071
 - tidyr
 - corrplot
+- lmtest
 
 ```R
-install.packages(c("dplyr", "ggplot2", "GGally", "reshape2", "e1071", "tidyr", "corrplot"))
+install.packages(c("dplyr", "ggplot2", "GGally", "reshape2", "e1071", "tidyr", "corrplot", "lmtest"))
 ```
 
 ---
 
-## Contributor
+## Sole Contributor & Author
 
-- **Chandrahas Reddy** (23BDS0308) - Repository Author and Maintainer
+- **Chandrahas Reddy** (Registration No: 23BDS0308)
+  - Email: chandrahas2094@gmail.com
+  - Sole Author, Researcher, and Maintainer
