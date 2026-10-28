@@ -1,204 +1,231 @@
-# Exploratory Data Analysis (EDA) Coursework
+# EDA Course - Python Notebooks
 
-## Student Information
+Name: Chandrahas Reddy
+Reg. No: 23BDS0308
 
-- **Name**: Chandrahas Reddy
-- **Registration Number**: 23BDS0308
-- **Email**: chandrahas2094@gmail.com
+This repo has my work for the Exploratory Data Analysis course. All the notebooks use the same dataset, `catholic.csv`, and go through EDA, linear regression, PCA and clustering. This README only covers the Python notebooks. The R versions of some of these are also in the repo but I have not described them here.
 
----
+## Dataset
 
-## Repository Overview
+I used the Catholic High School dataset, loaded straight from this link so nothing needs to be downloaded:
 
-This repository contains coursework and analytical implementations for Exploratory Data Analysis (EDA), statistical evaluation, unsupervised clustering, and dimensionality reduction (Principal Component Analysis) applied to educational achievement and socio-economic datasets. 
+```
+https://raw.githubusercontent.com/salemprakash/EDA/main/Data/catholic.csv
+```
 
-The primary study utilizes the `catholic.csv` dataset, which records academic performance indicators, family background, demographic attributes, and school sector attendance (Catholic vs. Public high schools).
+It has 7430 rows and 14 columns. Each row is one student.
 
----
+| Column | What it is |
+|---|---|
+| rownames, id | Row number and student id (dropped in most notebooks) |
+| read12 | 12th grade reading score |
+| math12 | 12th grade math score |
+| female | 1 = female, 0 = male |
+| asian, hispan, black | Ethnicity indicators (all 0 = white/other) |
+| motheduc, fatheduc | Mother's and father's years of education |
+| lfaminc | Log of family income |
+| hsgrad | Graduated high school (1460 missing values) |
+| cathhs | Went to a Catholic high school |
+| parcath | Parent is Catholic |
 
-## Repository Structure
+Only 452 of the 7430 students (about 6%) went to a Catholic high school, so the two groups are very unbalanced.
 
-| File | Description | Language / Environment |
-|---|---|---|
-| `Untitled5.ipynb` | **Phase-1**: Comprehensive Exploratory Data Analysis, Data Cleaning, and Visualization | Python (Jupyter / Colab) |
-| `SLE.ipynb` | **Simple Linear Estimation (SLE)**: Parametric Modeling, OLS Derivation, Diagnostic Hypothesis Testing, and Validation | R (RStudio / Colab) |
-| `pca.ipynb` | Dimensionality Reduction: Principal Component Analysis (PCA), Statistical Suitability Diagnostics, and Biplots | R (RStudio / Colab) |
-| `1D,2D,NDipynb.ipynb` | One-Dimensional, Two-Dimensional, and Multi-Dimensional Statistical Analysis | R (RStudio / Colab) |
-| `HeirarchicalNKmeans.ipynb` | Unsupervised Learning: Hierarchical Clustering and K-Means Partitioning | R (RStudio / Colab) |
+## Notebooks
 
----
-
-## Phase-1: Exploratory Data Analysis (`Untitled5.ipynb`)
-
-The primary component of Phase-1 is implemented in `Untitled5.ipynb`. It establishes a complete data analysis pipeline covering data ingestion, cleaning, transformation, and multi-level visual exploration.
-
-### 1. Data Ingestion and Structural Inspection
-- Loading the raw dataset containing 7,430 observations across 14 variables.
-- Reviewing schema, structural dimensions, column data types, unique counts, and missing entry summaries.
-
-### 2. Missing Value Analysis and Cleaning
-- Missing data diagnosis using numerical summaries and visual representation via a missing value heatmap.
-- Imputation of missing quantitative measurements using column median values.
-- Removal of redundant index tracking columns (`rownames`) and verification of duplicate records.
-- Outlier treatment using Interquartile Range (IQR) capping on continuous features to prevent skewing downstream analyses.
-
-### 3. Feature Engineering
-- Construction of `avg_score` as the composite mean of 12th-grade reading (`read12`) and mathematics (`math12`) scores.
-- Mapping binary indicator columns into descriptive categorical variables (`gender`, `catholic_hs`, and categorized `ethnicity`).
-
-### 4. Univariate Analysis
-- Distribution examination of 12th-grade reading scores using histograms and Kernel Density Estimation (KDE).
-- Boxplot visualization for math score dispersion and spread.
-- Frequency distribution of students across gender and parental education levels (`motheduc`).
-
-### 5. Bivariate Analysis
-- Assessment of correlation between reading and math performance using scatter plots.
-- Performance comparisons across Catholic and public school cohorts using boxplots on `avg_score`.
-- Evaluation of academic outcomes by gender.
-- Regression modeling of log family income (`lfaminc`) against academic score performance.
-
-### 6. Multivariate Analysis
-- Correlation matrix computation and heatmap visualization across academic scores, parental education, and income metrics.
-- Pairwise feature distributions split across school types.
-- Interaction analysis assessing student performance conditioned simultaneously on ethnicity and gender.
-- Faceted linear regression analysis examining family income versus performance categorized by gender and school type.
-
-### 7. Data Export
-- Generation of the preprocessed and transformed dataset exported as `catholic_cleaned.csv`.
+| Notebook | Topic |
+|---|---|
+| `Untitled5.ipynb` | Phase 1 - full EDA, cleaning and visualisation |
+| `1D,2D,ND.ipynb` | One-dimensional, two-dimensional and N-dimensional analysis |
+| `SLE23bds0308.ipynb` | Simple linear regression (math12 on read12) |
+| `pca23bds0308.ipynb` | Principal Component Analysis |
+| `23bds0308.ipynb` | Hierarchical and K-Means clustering |
 
 ---
 
-## Simple Linear Estimation (`SLE.ipynb`)
+## 1. Phase 1 EDA (`Untitled5.ipynb`)
 
-An end-to-end econometric and statistical modeling pipeline implemented in R to quantify and evaluate the linear relationship between reading comprehension (`read12`) and mathematics performance (`math12`) from the Catholic High School dataset.
+This was the first notebook where I went through the whole dataset from start to end.
 
-### 1. Exploratory Diagnostics & Bivariate Profiling
-- **Data Filtering**: Extraction of complete paired observations for 12th-grade reading (`read12`) and mathematics (`math12`) scores across 7,430 students.
-- **Descriptive Statistics**: Evaluation of distributional moments (mean, standard deviation, median, range) across both cognitive metrics.
-- **Visual Exploration**: Dual-panel histograms, boxplot dispersions, and bivariate scatter plots inspecting linearity and data density.
-- **Correlation Testing**: Pearson product-moment correlation analysis establishing a strong, statistically significant positive linear relationship ($r \approx 0.7104$, $t = 86.998$, $p < 2.2 \times 10^{-16}$, 95% CI $[0.6990, 0.7215]$).
+**Looking at the data**
+- Checked shape, data types, `describe()`, number of unique values and missing values for every column.
+- Made a missing values table (count and %) and a heatmap of nulls. Only `hsgrad` has missing values.
 
-### 2. Ordinary Least Squares (OLS) Formulation & Estimation
-- **Train/Test Splitting**: Seeded 80/20 partitioning into a training cohort ($n_{\text{train}} = 5,944$) and holdout test cohort ($n_{\text{test}} = 1,486$).
-- **Manual Parameter Derivation**: Explicit calculation of slope and intercept using closed-form analytical formulas:
-  $$\hat{\beta}_1 = \frac{\sum (x_i - \bar{x})(y_i - \bar{y})}{\sum (x_i - \bar{x})^2} \approx 0.7147, \quad \hat{\beta}_0 = \bar{y} - \hat{\beta}_1 \bar{x} \approx 15.1242$$
-- **Model Fitting (`lm`)**: Estimation via `lm(math12 ~ read12, data = train)`, yielding identical parameter values:
-  $$\widehat{\text{math12}} = 15.1242 + 0.7147 \times \text{read12}$$
-- **Statistical Significance**: Both parameters are highly significant ($t_{\hat{\beta}_0} = 31.48$, $t_{\hat{\beta}_1} = 78.21$, $p < 2 \times 10^{-16}$).
-- **Confidence Intervals**: 95% confidence intervals constructed for the intercept $[14.1824, 16.0659]$ and slope $[0.6967, 0.7326]$.
+**Cleaning**
+- Filled missing numeric values with the median and categorical ones with the mode.
+- Dropped the `rownames` column and checked for duplicate rows.
+- Capped outliers in `read12`, `math12`, `motheduc`, `fatheduc` and `lfaminc` using the IQR rule (1.5 x IQR).
 
-### 3. Variance Decomposition & Goodness-of-Fit
-- **ANOVA Decomposition**: Partitioning total variability into explained and unexplained sums of squares ($F(1, 5942) = 6117.47, p < 2 \times 10^{-16}$):
-  - Total Sum of Squares ($SST$): $5.356 \times 10^5$
-  - Regression Sum of Squares ($SSR$): $2.717 \times 10^5$
-  - Error Sum of Squares ($SSE$): $2.639 \times 10^5$
-- **Coefficient of Determination**: In-sample $R^2 \approx 0.5073$ (Adjusted $R^2 \approx 0.5072$), indicating reading aptitude explains approximately $50.7\%$ of the variance in math performance.
+**New columns**
+- `avg_score` = mean of read12 and math12.
+- Turned the 0/1 columns into readable labels: `gender`, `catholic_hs`, `hs_grad`, and one `ethnicity` column made from asian/hispan/black.
 
-### 4. Classical Regression Diagnostics & Assumption Testing
-- **Four-Panel Residual Diagnostics**: Residuals vs. Fitted, Normal Q-Q, Scale-Location, and Residuals vs. Leverage plots.
-- **Normality Assessment**: Q-Q reference line comparison and Shapiro-Wilk normality test on residuals ($W = 0.9985, p = 9.78 \times 10^{-5}$).
-- **Homoscedasticity Assessment**: Studentized Breusch-Pagan test ($BP = 14.801, df = 1, p = 0.00012$) evaluating constancy of residual variance across fitted levels.
-- **Independence Assessment**: Durbin-Watson test ($DW = 1.9813, p = 0.236$), establishing absence of first-order autocorrelation in residuals.
-- **Influence & Leverage Analysis**: Cook’s Distance computation identifying observations exceeding the leverage threshold ($h = 4/n_{\text{train}}$) to monitor influential outliers.
+**Univariate plots**
+- Histogram with KDE for reading scores
+- Boxplot for math scores
+- Count of students by gender
+- Distribution of mother's education
 
-### 5. Out-of-Sample Generalization & Prediction Bands
-- **Holdout Validation**: Evaluating test set generalization against unseen data ($n_{\text{test}} = 1,486$):
-  - Root Mean Squared Error (RMSE): $\approx 6.6306$
-  - Mean Absolute Error (MAE): $\approx 5.3198$
-  - Holdout Test $R^2$: $\approx 0.4937$ ($49.4\%$ variance explained out-of-sample)
-- **Actual vs. Predicted Evaluation**: Scatter visualization comparing predicted values against ground truth along the 45-degree reference line ($y = x$).
-- **Interval Estimation**: Constructing 95% Narrow Confidence Intervals (mean response estimation) and Wide Prediction Intervals (individual observation forecast) plotted across the entire operational range of reading scores.
+**Bivariate plots**
+- Reading vs math scatter plot
+- Average score for Catholic vs non-Catholic schools (boxplot)
+- Average score by gender
+- Log family income vs average score with a regression line
+
+**Multivariate plots**
+- Correlation heatmap of the main numeric columns
+- Pairplot coloured by Catholic school
+- Average score by ethnicity and gender
+- `lmplot` of income vs score split by gender and school type
+
+At the end the cleaned data is saved as `catholic_cleaned.csv`.
 
 ---
 
-## Principal Component Analysis (`pca.ipynb`)
+## 2. 1D, 2D and ND Analysis (`1D,2D,ND.ipynb`)
 
-An end-to-end Dimensionality Reduction pipeline implemented in R to analyze continuous performance metrics and socio-economic determinants from the Catholic High School dataset.
+Here I looked at the data one variable at a time, then two at a time, then more than two.
 
-### 1. Feature Selection and Preprocessing
-- Extraction of continuous variables for PCA: 12th-grade reading score (`read12`), mathematics score (`math12`), maternal education (`motheduc`), paternal education (`fatheduc`), and log family income (`lfaminc`).
-- Filtering for complete cases and defining categorical factor variables (`gender`, `school`, `parent`, `race`, `hsgrad_f`) for visual cohort stratification.
-- Scale, range, and distribution examination across selected continuous variables.
+**1D**
+- Summary stats for `read12`: mean 51.77, median 53.08, SD 9.41, range 29.15 to 68.09, skewness -0.37, kurtosis -0.83. So reading scores are slightly left skewed and a bit flatter than normal.
+- Frequency table, pie chart and bar plot for `cathhs` (6978 No, 452 Yes).
+- Binned frequency table (bins of 5), histogram and boxplot for `read12`.
 
-### 2. Statistical Suitability Diagnostics
-- **Correlation Matrix**: Computation and visualization of inter-feature correlations using `corrplot`.
-- **Bartlett's Test of Sphericity**: Formal hypothesis test ($H_0$: correlation matrix is an identity matrix, $p < 0.0001$), establishing significant inter-variable correlation appropriate for dimension reduction.
-- **Kaiser-Meyer-Olkin (KMO) Measure**: Evaluation of sampling adequacy yielding an overall KMO of ~0.70 with individual Measure of Sampling Adequacy (MSA) values, confirming suitability for factor extraction.
+**2D**
+- Contingency table of gender vs Catholic HS, with row and column percentages. 6.83% of males and 5.39% of females went to a Catholic school.
+- Stacked and grouped bar plots for the same table.
+- Box plot and violin plot of math score by Catholic HS.
+- Pearson (0.710) and Spearman (0.710) correlation between reading and math, with a scatter plot and regression line.
 
-### 3. Eigenvalue Decomposition and Dimensionality Reduction
-- Standardization and PCA computation via `prcomp(..., center = TRUE, scale. = TRUE)`.
-- **Eigenvalue Decomposition**:
-  - **PC1**: Eigenvalue $\approx 2.58$, explaining $\approx 51.6\%$ of total variance.
-  - **PC2**: Eigenvalue $\approx 1.07$, explaining $\approx 21.4\%$ of total variance.
-  - **Cumulative Explained Variance**: The first two principal components capture $\approx 73-74\%$ of the total data variance.
-- **Retention Criteria**: Component retention supported by Kaiser's Rule (eigenvalues $> 1$) and the cumulative variance threshold, selecting $k = 2$ components.
-
-### 4. Component Interpretations and Loadings
-- **Component Loadings & Contributions**: Inspection of rotation vectors and percentage contributions relative to the baseline threshold ($100/p = 20\%$).
-  - **PC1 ("Academic & Socio-Economic Advantage")**: Uniform directional loadings across test scores and socio-economic features representing overall student background and academic aptitude.
-  - **PC2 ("Academic Performance vs. Socio-Economic Background")**: Contrasting loadings separating cognitive achievement (`read12`, `math12`) from family background (`motheduc`, `fatheduc`, `lfaminc`).
-- **Correlation Circle**: Graphical projection of feature vectors onto the unit circle detailing variable correlations and projections onto PC1 and PC2.
-
-### 5. Score Projections and Demographic Stratification
-- **PCA Biplot**: 2D projection of student observations onto PC1 and PC2 with variable vectors and 95% concentration ellipses stratified by school sector (`Catholic HS` vs. `Non-Catholic HS`).
-- **Demographic Projections**: PC score mappings stratified across student race, gender, parental religion, and graduation status.
-- **Group Comparison**: Boxplot distributions and an independent two-sample t-test (`t.test(PC1 ~ school)`) comparing mean PC1 scores between Catholic and non-Catholic cohorts.
-
-### 6. Reconstruction Quality and Error Metrics
-- Projection matrix reconstruction: $\hat{Z} = \text{Scores}_{1:k} \times \text{Loadings}_{1:k}^T$.
-- Measurement of standardized reconstruction error through Mean Squared Reconstruction Error (MSRE).
-- Individual feature recovery correlation demonstrating high fidelity for standardized test scores ($r \approx 0.93$) and moderate fidelity for family income ($r \approx 0.75$).
+**ND**
+- Mean and SD of math score grouped by gender and Catholic HS. Catholic school students scored higher in both genders (males 56.31 vs 52.68, females 54.29 vs 51.23).
+- Scatter of read12 vs math12 coloured by school type. The correlation is 0.71 for non-Catholic and 0.62 for Catholic students.
+- Correlation matrix and heatmap of read12, math12, motheduc, fatheduc and lfaminc.
+- Pairplot of the five numeric columns.
 
 ---
 
-## Supplemental Coursework Notebooks
+## 3. Simple Linear Regression (`SLE23bds0308.ipynb`)
 
-### 1D, 2D, and N-Dimensional EDA (`1D,2D,NDipynb.ipynb`)
-- Focused R implementation analyzing single-variable statistics (mean, median, variance, skewness, kurtosis).
-- Bivariate frequency analysis, contingency tables, and cross-tabulation.
-- Higher-dimensional groupings examining socio-economic determinants of academic achievement.
+The goal here was to predict `math12` from `read12` using a simple linear model.
 
-### Clustering Analysis (`HeirarchicalNKmeans.ipynb`)
-- Unsupervised learning pipeline in R.
-- Standardization of continuous variables (`scale()`).
-- Hierarchical clustering using Euclidean distance and agglomerative linkages visualized through dendrograms.
-- K-Means clustering with optimal cluster identification and cluster profile characterization.
+**Before modelling**
+- Descriptive stats, histograms and boxplots of both scores.
+- Scatter plot of math vs read, which looks clearly linear.
+- Pearson correlation test: r = 0.7104, t = 86.998, p close to 0, 95% CI [0.699, 0.7215].
+
+**Fitting the model**
+- 80/20 train test split (`random_state=123`) giving 5944 train rows and 1486 test rows.
+- Calculated the slope and intercept by hand with the least squares formulas first, then fitted the same model with `statsmodels` OLS to check. Both gave the same answer.
+
+Final equation:
+
+```
+math12 = 15.1380 + 0.7142 * read12
+```
+
+- 95% CI for the intercept: [14.198, 16.078]
+- 95% CI for the slope: [0.696, 0.732]
+- ANOVA table: F = 6127.95, p close to 0
+- SST = 529962.5, SSR = 269063.5, SSE = 260898.9
+- R2 = 0.5077, so reading score explains about half of the variation in math score.
+
+**Checking assumptions**
+- Four diagnostic plots: residuals vs fitted, Q-Q plot, scale-location and residuals vs leverage.
+- Residual histogram and Shapiro-Wilk test (W = 0.9991, p = 0.014). Residuals are very close to normal, but with this many rows even a tiny difference shows up as significant.
+- Breusch-Pagan test (BP = 21.54, p < 0.001), so there is some heteroscedasticity.
+- Durbin-Watson = 2.06, so no autocorrelation in the residuals.
+- Cook's distance plot with a 4/n cutoff. 188 points are above it.
+
+**Testing on unseen data**
+- RMSE = 6.78
+- MAE = 5.49
+- Test R2 = 0.492, which is close to the training R2, so the model is not overfitting.
+- Actual vs predicted plot with the y = x line.
+- Confidence and prediction intervals for reading scores of 40, 50 and 60. For example at read12 = 50 the predicted math score is 50.85, with a prediction interval of 37.86 to 63.84.
 
 ---
 
-## Requirements and Dependencies
+## 4. Principal Component Analysis (`pca23bds0308.ipynb`)
 
-### Python Environment
-- Python 3.8+
-- pandas
-- numpy
-- matplotlib
-- seaborn
-- scikit-learn
+I ran PCA on the five numeric columns: `read12`, `math12`, `motheduc`, `fatheduc` and `lfaminc`. They are on very different scales (scores out of ~70, education in years, income in logs) so I standardized them first.
+
+**Is the data suitable for PCA?**
+- Correlation matrix shows the variables are positively correlated, most strongly read12 and math12 (0.71) and mother's and father's education (0.58).
+- Bartlett's test of sphericity: chi-square = 11809.68, df = 10, p close to 0. So the correlation matrix is not an identity matrix.
+- KMO = 0.704 overall, with every variable's MSA above 0.6. This is good enough for PCA.
+
+**Results**
+
+| PC | Eigenvalue | Variance % | Cumulative % |
+|---|---|---|---|
+| PC1 | 2.622 | 52.44 | 52.44 |
+| PC2 | 1.054 | 21.08 | 73.52 |
+| PC3 | 0.626 | 12.51 | 86.03 |
+| PC4 | 0.413 | 8.26 | 94.29 |
+| PC5 | 0.286 | 5.71 | 100.00 |
+
+- The Kaiser rule (eigenvalue > 1) says keep 2 components, and the 80% rule says 3. I kept 2, which explain about 73.5% of the variance. The scree plot shows the same thing.
+
+**What the components mean**
+- PC1 has positive loadings on all five variables (0.40 to 0.47). It is basically an overall "academic and family background" score. Students high on PC1 have good scores and better educated, higher income parents.
+- PC2 is positive for read12 and math12 and negative for the parent education and income variables. It separates students whose test scores are higher than their background would suggest from those whose scores are lower.
+- I also made contribution bar charts for PC1 and PC2 (with the 20% reference line) and a correlation circle.
+
+**Plots and group comparison**
+- Biplot of PC1 vs PC2 coloured by school type, with the variable arrows.
+- PC score plots split by race, gender, parent's religion and graduation status.
+- Boxplots of PC1 by school, gender and race.
+- Catholic school students have a mean PC1 of 0.78 compared to -0.05 for the rest. A Welch t-test gives t = -12.01, p < 0.001, so the difference is significant.
+
+---
+
+## 5. Hierarchical and K-Means Clustering (`23bds0308.ipynb`)
+
+Same five numeric columns as the PCA, standardized with `StandardScaler`.
+
+**Hierarchical clustering**
+- Took a random sample of 300 students (seed 123) so the dendrogram is readable.
+- Used Ward's linkage with Euclidean distance and plotted the dendrogram.
+- Cut the tree into 3 clusters, with sizes 143, 49 and 108.
+
+**K-Means**
+- First tried k = 2 (`n_init=25`). Cluster sizes 3594 and 3836, between SS / total SS = 34.2%. It just splits the students into a "below average on everything" group and an "above average on everything" group.
+- Used the elbow method (WCSS for k = 1 to 10) to pick k. The bend is around k = 3.
+- Final model with k = 3. Cluster sizes 2493, 2036 and 2901, between SS / total SS = 44.3%.
+
+Cluster averages in the original units:
+
+| Cluster | read12 | math12 | motheduc | fatheduc | lfaminc |
+|---|---|---|---|---|---|
+| 1 | 41.99 | 42.57 | 12.27 | 12.31 | 9.90 |
+| 2 | 57.83 | 59.35 | 15.34 | 16.16 | 10.93 |
+| 3 | 55.93 | 55.29 | 12.90 | 13.11 | 10.34 |
+
+- Cluster 1: low scores and lower parent education and income.
+- Cluster 2: high scores and the most educated, highest income parents.
+- Cluster 3: fairly high scores but average family background. This is the same pattern PC2 picked up in the PCA.
+
+---
+
+## How to run
+
+Every notebook has an "Open in Colab" badge at the top (except `Untitled5.ipynb`) and reads the data from the URL above, so the easiest way is to open them in Google Colab and run all cells.
+
+To run locally:
 
 ```bash
-pip install pandas numpy matplotlib seaborn scikit-learn
+pip install pandas numpy matplotlib seaborn scipy scikit-learn statsmodels jupyter
+jupyter notebook
 ```
 
-### R Environment
-- R 4.0+
-- dplyr
-- ggplot2
-- GGally
-- reshape2
-- e1071
-- tidyr
-- corrplot
-- lmtest
+Libraries used:
+- pandas, numpy
+- matplotlib, seaborn
+- scipy (stats tests, hierarchical clustering)
+- scikit-learn (StandardScaler, PCA, KMeans, train_test_split)
+- statsmodels (OLS, ANOVA, Breusch-Pagan, Durbin-Watson)
 
-```R
-install.packages(c("dplyr", "ggplot2", "GGally", "reshape2", "e1071", "tidyr", "corrplot", "lmtest"))
-```
+## Author
 
----
-
-## Sole Contributor & Author
-
-- **Chandrahas Reddy** (Registration No: 23BDS0308)
-  - Email: chandrahas2094@gmail.com
-  - Sole Author, Researcher, and Maintainer
+Chandrahas Reddy (23BDS0308)
+chandrahas2094@gmail.com
