@@ -1,4 +1,5 @@
-# EDA Course - Python Notebooks
+# EDA Course 
+mail : chandrahas2094@gmail.com
 
 Name: Chandrahas Reddy
 Reg. No: 23BDS0308
